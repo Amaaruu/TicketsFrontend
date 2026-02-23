@@ -1,13 +1,10 @@
-import { Container, Button } from 'react-bootstrap';
+import LoginPage from './pages/LoginPage';
+// import MainLayout from './components/templates/MainLayout'; // Para probar el otro layout luego
 
 function App() {
   return (
-    <Container className="mt-5 text-center">
-      <h1 className="text-primary">Sistema de Tickets - Helpdesk</h1>
-      <p className="lead">Bootstrap + Atomic Design + React</p>
-      <Button variant="success">¡Bootstrap funcionando!</Button>
-    </Container>
-  )
+    <LoginPage />
+  );
 }
 
-export default App
+export default App;
