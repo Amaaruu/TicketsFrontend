@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { ticketService } from '../api/ticketService';
 import TicketTable from '../components/organisms/TicketTable';
-import '../styles/pages/ViewStyles.css';
+import '../styles/pages/ViewStyles.css'; // <-- Ruta actualizada
 
 const TicketsView = () => {
   const user = useAuthStore(state => state.user);
@@ -26,10 +26,13 @@ const TicketsView = () => {
   }, [user]);
 
   return (
-    <div className="modern-card">
-      <h3 className="fw-bold mb-4">{user.rol === 'CLIENTE' ? 'Mis Tickets' : 'Bandeja de Entrada'}</h3>
+    <div className="view-container">
+      <h3 className="view-header mb-4">
+        {user.rol === 'CLIENTE' ? 'Mis Tickets' : 'Bandeja de Entrada'}
+      </h3>
       <TicketTable tickets={tickets} />
     </div>
   );
 };
+
 export default TicketsView;

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Table, Badge, Form, Button } from 'react-bootstrap';
 import { Trash2 } from 'lucide-react';
 import { userService } from '../api/userService';
+import '../styles/pages/ViewStyles.css'; // <-- Ruta actualizada
+import '../styles/components/organisms/TicketTable.css'; // <-- Ruta actualizada
 
 const UsersView = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -26,9 +28,9 @@ const UsersView = () => {
   };
 
   return (
-    <div className="modern-card">
-      <h3 className="fw-bold mb-4">Gestión de Usuarios</h3>
-      <Table hover responsive className="modern-table">
+    <div className="view-container">
+      <h3 className="view-header mb-4">Gestión de Usuarios</h3>
+      <Table hover responsive className="custom-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -70,4 +72,5 @@ const UsersView = () => {
     </div>
   );
 };
+
 export default UsersView;
