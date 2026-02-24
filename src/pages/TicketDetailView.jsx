@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Badge, Form, Row, Col, Spinner } from 'react-bootstrap';
-import { Send, ArrowLeft } from 'lucide-react';
+import { Send, ArrowLeft, Trash2 } from 'lucide-react';
 import { ticketService } from '../api/ticketService';
 import { useAuthStore } from '../store/useAuthStore';
 import ButtonCustom from '../components/atoms/ButtonCustom';
@@ -42,13 +42,12 @@ const TicketDetailView = () => {
     if (!nuevoMensaje.trim()) return;
 
     try {
-      // Enviamos el mensaje y le decimos al backend qué usuario lo escribió
       await ticketService.addComment(id, {
         mensaje: nuevoMensaje,
         usuario: { id: user.id } 
       });
       setNuevoMensaje("");
-      cargarDatos(); // Recargamos para ver el nuevo comentario
+      cargarDatos(); 
     } catch (err) {
       alert("Error al enviar respuesta");
     }
@@ -56,9 +55,19 @@ const TicketDetailView = () => {
 
   const handleCerrarTicket = async () => {
     if(window.confirm("¿Seguro que deseas marcar este ticket como RESUELTO?")) {
-      // 3 es el ID del estado "RESUELTO" en el DataSeeder
       await ticketService.updateStatus(id, 3);
       cargarDatos();
+    }
+  };
+
+  const handleEliminarTicket = async () => {
+    if(window.confirm("¿Estás seguro de que deseas ELIMINAR este ticket y todos sus mensajes? Esta acción no se puede deshacer.")) {
+      try {
+        await ticketService.delete(id);
+        navigate('/dashboard/tickets');
+      } catch (err) {
+        alert("Error al eliminar el ticket");
+      }
     }
   };
 
@@ -66,13 +75,11 @@ const TicketDetailView = () => {
 
   return (
     <div>
-      {/* Botón Volver */}
       <ButtonCustom variant="light" className="mb-4 text-primary fw-bold" onClick={() => navigate('/dashboard/tickets')}>
         <ArrowLeft size={18} className="me-2" /> Volver a la lista
       </ButtonCustom>
 
       <Row>
-        {/* COLUMNA IZQUIERDA: Info del Ticket */}
         <Col lg={4}>
           <div className="ticket-detail-card h-100">
             <h5 className="text-muted mb-1">Ticket #{ticket.id}</h5>
@@ -98,16 +105,22 @@ const TicketDetailView = () => {
             <h6 className="fw-bold text-dark">Descripción original:</h6>
             <p className="text-muted small" style={{ whiteSpace: 'pre-wrap' }}>{ticket.descripcion}</p>
 
-            {/* Acción para Agentes: Cerrar Ticket */}
-            {user.rol !== 'CLIENTE' && ticket.estado !== 'RESUELTO' && (
-              <ButtonCustom variant="success" className="w-100 mt-3" onClick={handleCerrarTicket}>
-                Marcar como Resuelto
-              </ButtonCustom>
+            {user.rol !== 'CLIENTE' && (
+              <div className="mt-4">
+                {ticket.estado !== 'RESUELTO' && (
+                  <ButtonCustom variant="success" className="w-100 mb-2" onClick={handleCerrarTicket}>
+                    Marcar como Resuelto
+                  </ButtonCustom>
+                )}
+                
+                <ButtonCustom variant="outline-danger" className="w-100" onClick={handleEliminarTicket}>
+                  <Trash2 size={16} className="me-2" /> Eliminar Ticket Permanentemente
+                </ButtonCustom>
+              </div>
             )}
           </div>
         </Col>
 
-        {/* COLUMNA DERECHA: Hilo de Comentarios */}
         <Col lg={8}>
           <div className="ticket-detail-card h-100 d-flex flex-column">
             <h4 className="fw-bold text-dark mb-4">Historial de Conversación</h4>
@@ -130,7 +143,6 @@ const TicketDetailView = () => {
               )}
             </div>
 
-            {/* Caja para escribir nueva respuesta */}
             {ticket.estado !== 'RESUELTO' && ticket.estado !== 'CERRADO' ? (
               <Form onSubmit={handleEnviarComentario} className="mt-auto">
                 <Form.Group className="mb-3">
