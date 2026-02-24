@@ -22,6 +22,7 @@ const LoginPage = () => {
       // 2. Guardar datos en el estado global (Zustand)
       setToken(response.data.token);
       setUser({
+        id: response.data.id, // NUEVO
         email: response.data.email,
         rol: response.data.rol
       });
