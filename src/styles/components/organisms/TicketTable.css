@@ -1,0 +1,17 @@
+.custom-table th {
+  background-color: transparent;
+  color: #a3aed1;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e9ecef;
+  padding: 1rem 0.5rem;
+}
+
+.custom-table td {
+  vertical-align: middle;
+  font-weight: 500;
+  border-bottom: 1px solid #f4f7fe;
+  padding: 1rem 0.5rem;
+}

@@ -4,6 +4,7 @@ import { Container, Row, Col, Alert } from 'react-bootstrap';
 import LoginForm from '../components/organisms/LoginForm';
 import api from '../api/axios'; // Tu instancia de axios configurada
 import { useAuthStore } from '../store/useAuthStore'; // Tu store de Zustand
+import '../../styles/pages/LoginPage.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();

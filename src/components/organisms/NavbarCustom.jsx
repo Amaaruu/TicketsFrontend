@@ -1,6 +1,7 @@
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { LogOut, Ticket } from 'lucide-react';
+import '../../styles/components/organisms/NavbarCustom.css';
 
 const NavbarCustom = ({ user, onLogout }) => {
   return (

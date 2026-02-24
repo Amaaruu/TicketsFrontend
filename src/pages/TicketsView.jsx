@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { ticketService } from '../api/ticketService';
 import TicketTable from '../components/organisms/TicketTable';
+import '../styles/pages/ViewStyles.css';
 
 const TicketsView = () => {
   const user = useAuthStore(state => state.user);

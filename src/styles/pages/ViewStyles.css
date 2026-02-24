@@ -1,0 +1,13 @@
+.view-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.view-header {
+  color: #2b3674;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}

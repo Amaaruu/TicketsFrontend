@@ -1,0 +1,13 @@
+.btn-custom-primary {
+  background-color: #4318ff !important;
+  border-color: #4318ff !important;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-custom-primary:hover {
+  background-color: #3311cc !important;
+  box-shadow: 0 4px 15px rgba(67, 24, 255, 0.3);
+  transform: translateY(-2px);
+}

@@ -1,4 +1,5 @@
 import { Table, Badge } from 'react-bootstrap';
+import '../../styles/components/organisms/TicketTable.css';
 
 const TicketTable = ({ tickets }) => {
   return (

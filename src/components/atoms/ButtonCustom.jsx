@@ -1,4 +1,5 @@
 import { Button } from 'react-bootstrap';
+import '../../styles/components/atoms/ButtonCustom.css';
 
 const ButtonCustom = ({ children, variant = "primary", onClick, type = "button", ...props }) => {
   return (
