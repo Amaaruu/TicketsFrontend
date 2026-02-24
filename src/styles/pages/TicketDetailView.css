@@ -1,0 +1,67 @@
+.ticket-detail-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chat-container {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Scrollbar personalizado para el chat */
+.chat-container::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+.comment-bubble {
+  padding: 1.2rem;
+  border-radius: 12px;
+  position: relative;
+  background: #f8fafc;
+  border-left: 4px solid #cbd5e1;
+}
+
+/* Estilo diferente si responde un CLIENTE vs AGENTE/ADMIN */
+.comment-bubble.cliente {
+  border-left-color: #3b82f6; /* Azul */
+}
+
+.comment-bubble.agente {
+  border-left-color: #10b981; /* Verde */
+  background: #f0fdf4;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.comment-author {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.comment-message {
+  color: #334155;
+  white-space: pre-wrap; /* Respeta los saltos de línea */
+  margin: 0;
+}
