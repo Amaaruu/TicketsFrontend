@@ -1,104 +1,169 @@
-import React, { useState, useEffect } from 'react';
-import { obtenerUsuarios, crearUsuario, actualizarUsuario, eliminarUsuario } from '../api/userService';
+import { useEffect, useState } from 'react';
+import { Table, Badge, Button, Modal, Form } from 'react-bootstrap';
+import { Trash2, Edit2, Plus } from 'lucide-react';
+import { userService } from '../api/userService';
+import '../styles/pages/ViewStyles.css';
 
 const UsersView = () => {
   const [usuarios, setUsuarios] = useState([]);
-  const [form, setForm] = useState({ username: '', password: '', nombre: '', rol: '' });
-  const [editingId, setEditingId] = useState(null);
-
-  useEffect(() => {
-    cargarUsuarios();
-  }, []);
+  const [showModal, setShowModal] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({ id: '', nombre: '', email: '', passwordHash: '', rol: { id: 2 } });
 
   const cargarUsuarios = async () => {
     try {
-      const data = await obtenerUsuarios();
-      setUsuarios(data);
+      const res = await userService.getAll();
+      setUsuarios(res.data);
     } catch (error) {
       console.error("Error al cargar usuarios", error);
     }
   };
 
+  useEffect(() => { cargarUsuarios(); }, []);
+
+  const handleClose = () => {
+    setShowModal(false);
+    setFormData({ id: '', nombre: '', email: '', passwordHash: '', rol: { id: 2 } });
+    setEditMode(false);
+  };
+
+  const handleShowCreate = () => {
+    setEditMode(false);
+    setShowModal(true);
+  };
+
+  const handleShowEdit = (u) => {
+    setEditMode(true);
+    setFormData({
+      id: u.id,
+      nombre: u.nombre,
+      email: u.email,
+      passwordHash: '', 
+      rol: { id: u.rol === 'ADMINISTRADOR' ? 1 : 2 }
+    });
+    setShowModal(true);
+  };
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'rolId') {
+      setFormData({ ...formData, rol: { id: parseInt(value) } });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      await actualizarUsuario(editingId, form);
-    } else {
-      await crearUsuario(form);
-    }
-    setForm({ username: '', password: '', nombre: '', rol: '' });
-    setEditingId(null);
-    cargarUsuarios();
-  };
-
-  const handleEdit = (u) => {
-    setForm({ username: u.username, password: u.password, nombre: u.nombre, rol: u.rol });
-    setEditingId(u.id);
-  };
-
-  const handleDelete = async (id) => {
-    if(window.confirm("¿Estás seguro de eliminar este usuario?")) {
-      await eliminarUsuario(id);
+    try {
+      if (editMode) {
+        await userService.update(formData.id, formData);
+      } else {
+        await userService.create(formData);
+      }
+      handleClose();
       cargarUsuarios();
+    } catch (error) {
+      alert("Error al guardar el usuario. Verifica los datos.");
     }
   };
 
-  // Estilos limpios y minimalistas en línea para rapidez
-  const styles = {
-    container: { padding: '40px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'system-ui, sans-serif', color: '#333' },
-    title: { fontSize: '24px', fontWeight: '300', marginBottom: '30px', borderBottom: '1px solid #eaeaea', paddingBottom: '10px', letterSpacing: '1px' },
-    form: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '40px' },
-    input: { padding: '12px', border: '1px solid #ccc', borderRadius: '4px', outline: 'none', fontSize: '14px', transition: 'border-color 0.3s' },
-    button: { padding: '12px 20px', backgroundColor: '#000', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' },
-    buttonOutline: { padding: '8px 12px', backgroundColor: 'transparent', color: '#000', border: '1px solid #000', cursor: 'pointer', fontSize: '12px', textTransform: 'uppercase', marginRight: '8px' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-    th: { textAlign: 'left', padding: '15px 10px', borderBottom: '2px solid #000', fontWeight: '500', fontSize: '14px', textTransform: 'uppercase' },
-    td: { padding: '15px 10px', borderBottom: '1px solid #eaeaea', fontSize: '14px' }
+  const handleEliminar = async (id) => {
+    if(window.confirm("¿Seguro que deseas desactivar este usuario?")) {
+      try {
+        await userService.delete(id);
+        cargarUsuarios();
+      } catch (error) {
+        console.error("Error al eliminar", error);
+      }
+    }
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>Gestión de Usuarios</h1>
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input style={styles.input} name="username" value={form.username} onChange={handleChange} placeholder="Username" required />
-        <input style={styles.input} name="password" type="password" value={form.password} onChange={handleChange} placeholder="Contraseña" required />
-        <input style={styles.input} name="nombre" value={form.nombre} onChange={handleChange} placeholder="Nombre Completo" required />
-        <input style={styles.input} name="rol" value={form.rol} onChange={handleChange} placeholder="Rol (Ej: ADMIN)" required />
-        <button style={styles.button} type="submit">
-          {editingId ? 'Guardar Cambios' : 'Añadir Usuario'}
-        </button>
-      </form>
+    <div className="view-container">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h3 className="view-header m-0">Gestión de Usuarios</h3>
+        <Button variant="primary" onClick={handleShowCreate}>
+          <Plus size={18} className="me-1"/> Crear Usuario
+        </Button>
+      </div>
 
-      <table style={styles.table}>
-        <thead>
+      <Table hover responsive className="custom-table bg-white shadow-sm rounded">
+        <thead className="bg-light">
           <tr>
-            <th style={styles.th}>ID</th>
-            <th style={styles.th}>Username</th>
-            <th style={styles.th}>Nombre</th>
-            <th style={styles.th}>Rol</th>
-            <th style={styles.th}>Acciones</th>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {usuarios.map(u => (
             <tr key={u.id}>
-              <td style={styles.td}>{u.id}</td>
-              <td style={styles.td}>{u.username}</td>
-              <td style={styles.td}>{u.nombre}</td>
-              <td style={styles.td}>{u.rol}</td>
-              <td style={styles.td}>
-                <button style={styles.buttonOutline} onClick={() => handleEdit(u)}>Editar</button>
-                <button style={{...styles.buttonOutline, color: '#d32f2f', borderColor: '#d32f2f'}} onClick={() => handleDelete(u.id)}>Eliminar</button>
+              <td className="align-middle">#{u.id}</td>
+              <td className="align-middle fw-semibold">{u.nombre}</td>
+              <td className="align-middle text-muted">{u.email}</td>
+              <td className="align-middle">
+                <Badge bg={u.rol === 'ADMINISTRADOR' ? 'danger' : 'info'}>
+                  {u.rol}
+                </Badge>
+              </td>
+              <td className="align-middle">
+                <Badge bg={u.activo ? 'success' : 'secondary'}>
+                  {u.activo ? 'Activo' : 'Inactivo'}
+                </Badge>
+              </td>
+              <td className="align-middle">
+                <Button variant="outline-primary" size="sm" className="me-2" onClick={() => handleShowEdit(u)}>
+                  <Edit2 size={16} />
+                </Button>
+                {u.activo && (
+                  <Button variant="outline-danger" size="sm" onClick={() => handleEliminar(u.id)}>
+                    <Trash2 size={16} />
+                  </Button>
+                )}
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
+
+      <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{editMode ? 'Editar Usuario' : 'Crear Usuario'}</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Nombre Completo</Form.Label>
+              <Form.Control type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Correo Electrónico</Form.Label>
+              <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required />
+            </Form.Group>
+            {!editMode && (
+              <Form.Group className="mb-3">
+                <Form.Label>Contraseña</Form.Label>
+                <Form.Control type="password" name="passwordHash" value={formData.passwordHash} onChange={handleChange} required />
+              </Form.Group>
+            )}
+            <Form.Group className="mb-3">
+              <Form.Label>Rol del Sistema</Form.Label>
+              <Form.Select name="rolId" value={formData.rol.id} onChange={handleChange} required>
+                <option value={1}>Administrador</option>
+                <option value={2}>Usuario</option>
+              </Form.Select>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="light" onClick={handleClose}>Cancelar</Button>
+            <Button variant="primary" type="submit">Guardar Cambios</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
   );
 };
