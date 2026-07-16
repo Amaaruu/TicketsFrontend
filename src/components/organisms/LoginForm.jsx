@@ -1,50 +1,49 @@
 import { useState } from 'react';
-import { Card, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
 import FormField from '../molecules/FormField';
 import ButtonCustom from '../atoms/ButtonCustom';
+import axiosInstance from '../../api/axios';
 
-const LoginForm = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+const LoginForm = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const login = useAuthStore((state) => state.login);
+    const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axiosInstance.post('/api/auth/login', { email, password });
+            login(response.data.token);
+            navigate('/tickets');
+        } catch (err) {
+            setError('Credenciales inválidas');
+        }
+    };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onLogin(credentials);
-  };
-
-  return (
-    <Card className="shadow-lg border-0 p-4">
-      <Card.Body>
-        <h2 className="text-center mb-4">Iniciar Sesión</h2>
-        <Form onSubmit={handleSubmit}>
-          <FormField 
-            label="Correo Electrónico"
-            name="email"
-            type="email"
-            placeholder="admin@empresa.com"
-            value={credentials.email}
-            onChange={handleChange}
-          />
-          <FormField 
-            label="Contraseña"
-            name="password"
-            type="password"
-            placeholder="********"
-            value={credentials.password}
-            onChange={handleChange}
-          />
-          <div className="d-grid gap-2 mt-4">
-            <ButtonCustom type="submit" variant="primary" size="lg">
-              Entrar al Sistema
-            </ButtonCustom>
-          </div>
-        </Form>
-      </Card.Body>
-    </Card>
-  );
+    return (
+        <form onSubmit={handleSubmit} className="login-form">
+            <h2>Iniciar Sesión</h2>
+            {error && <p className="error-message">{error}</p>}
+            <FormField 
+                label="Correo Electrónico" 
+                type="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+            />
+            <FormField 
+                label="Contraseña" 
+                type="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+            />
+            <ButtonCustom type="submit" text="Ingresar" />
+        </form>
+    );
 };
 
 export default LoginForm;

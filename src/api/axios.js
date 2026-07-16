@@ -1,21 +1,21 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/useAuthStore';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // La URL de tu backend Spring Boot
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const axiosInstance = axios.create({
+    baseURL: 'http://localhost:8080'
 });
 
-// Interceptor para añadir el Token JWT a todas las peticiones
-api.interceptors.request.use((config) => {
-  const authStorage = JSON.parse(localStorage.getItem('auth-storage'));
-  const token = authStorage?.state?.token;
-  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = useAuthStore.getState().token;
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
-export default api;
+export default axiosInstance;
