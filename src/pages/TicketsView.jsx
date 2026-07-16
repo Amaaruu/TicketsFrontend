@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getTickets } from '../api/ticketService';
-import '../styles/pages/ViewStyles.css'; // Reutilizando tus estilos base
+import '../styles/pages/ViewStyles.css';
 
 const TicketsView = () => {
     const [tickets, setTickets] = useState([]);
